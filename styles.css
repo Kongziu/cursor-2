@@ -109,6 +109,14 @@ header.top p{color:var(--muted);margin-top:8px;font-size:.96rem}
 .feedback.no{background:var(--bad-bg);border:1px solid var(--bad)}
 .feedback.no .ftitle{color:#fda4af}
 .feedback .fexp{color:var(--txt);opacity:.92}
+.hintwrap{margin-top:16px}
+#hintBtn{border-color:rgba(251,191,36,.4);color:var(--gold)}
+#hintBtn:hover{border-color:var(--gold);background:rgba(251,191,36,.08)}
+#hintBtn:disabled{opacity:.45}
+.hintbox{margin-top:12px;max-height:0;overflow:hidden;padding:0 16px;border-radius:12px;
+  border:1px solid transparent;background:transparent;font-size:.96rem;color:#fde68a;transition:.28s ease}
+.hintbox.show{max-height:260px;padding:14px 16px;border-color:var(--gold);background:rgba(251,191,36,.1);animation:rise .25s ease both}
+.hintbox b{color:var(--gold)}
 .kbd-hint{margin-top:14px;color:var(--muted);font-size:.78rem;text-align:center}
 .kbd-hint kbd{background:var(--panel3);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;
   padding:1px 7px;font-size:.76rem;font-family:inherit}

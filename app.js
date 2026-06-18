@@ -118,6 +118,10 @@
     $('qTopic').textContent = TOPICS[item.t].name;
     $('qText').textContent = item.q;
     const fb = $('feedback'); fb.className = 'feedback'; fb.innerHTML = '';
+    const hb = $('hintBox'); hb.className = 'hintbox'; hb.innerHTML = '';
+    const hbtn = $('hintBtn');
+    hbtn.style.display = item.h ? 'inline-block' : 'none';
+    hbtn.disabled = false;
     const wrap = $('answers'); wrap.innerHTML = '';
     item.opts.forEach((o,i)=>{
       const el = document.createElement('div');
@@ -162,6 +166,16 @@
     const g = game;
     if(g.idx===g.pool.length-1) return showResults();
     g.idx++; renderQ();
+  }
+
+  function showHint(){
+    const g = game; if(!g) return;
+    const item = g.pool[g.idx];
+    if(!item || !item.h) return;
+    const hb = $('hintBox');
+    hb.className = 'hintbox show';
+    hb.innerHTML = '<b>\uD83D\uDCA1 Wskazówka:</b> ' + item.h;
+    $('hintBtn').disabled = true;
   }
 
   /* ---------- wyniki ---------- */
@@ -236,6 +250,7 @@
     const item = g.pool[g.idx];
     const key = e.key.toLowerCase();
     const map = {a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3};
+    if(key==='h'){ e.preventDefault(); showHint(); return; }
     if(!item._answered && key in map){
       const idx = map[key];
       if(idx < item.opts.length){ e.preventDefault(); choose(idx); }
@@ -247,6 +262,7 @@
   /* ---------- podpięcie zdarzeń ---------- */
   $('startBtn').onclick = startQuiz;
   $('nextBtn').onclick = nextQ;
+  $('hintBtn').onclick = showHint;
   $('quitBtn').onclick = ()=>{ if(game){ showResults(); } };
   $('againBtn').onclick = startQuiz;
   $('setupBtn').onclick = ()=>{ showScreen('setup'); renderBest(); };
