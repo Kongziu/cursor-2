@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz PKM II — Połączenia, Sprzęgła, Hamulce, Przekładnie</title>
+<style>
+  :root{
+    --bg:#0f172a; --bg2:#1e293b; --card:#1e293b; --card2:#273449;
+    --accent:#38bdf8; --accent2:#0ea5e9; --good:#22c55e; --bad:#ef4444;
+    --txt:#e2e8f0; --muted:#94a3b8; --border:#334155; --gold:#fbbf24;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(160deg,#0f172a 0%,#111c33 60%,#0b1220 100%);
+    color:var(--txt); min-height:100vh; line-height:1.55;
+    padding:24px 14px;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  header.top{text-align:center;margin-bottom:22px}
+  header.top h1{font-size:1.65rem;color:#fff;letter-spacing:.3px}
+  header.top p{color:var(--muted);margin-top:6px;font-size:.95rem}
+  .card{
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:26px; box-shadow:0 18px 40px rgba(0,0,0,.35);
+  }
+  .lead{color:var(--muted);margin-bottom:18px;font-size:1rem}
+  .topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:18px 0}
+  .topic{
+    background:var(--card2); border:1px solid var(--border); border-radius:12px;
+    padding:14px 16px; cursor:pointer; display:flex;align-items:center;gap:12px;
+    transition:.18s; user-select:none;
+  }
+  .topic:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .topic.sel{border-color:var(--accent);background:#11324a;box-shadow:0 0 0 1px var(--accent) inset}
+  .topic .ico{font-size:1.6rem;line-height:1}
+  .topic .meta b{display:block;color:#fff;font-size:.98rem}
+  .topic .meta span{color:var(--muted);font-size:.82rem}
+  .topic .chk{margin-left:auto;width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff}
+  .topic.sel .chk{background:var(--accent);border-color:var(--accent)}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .opt-toggle{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+  .opt-toggle input{width:18px;height:18px;accent-color:var(--accent)}
+  .opt-toggle label{font-size:.9rem;color:var(--txt);cursor:pointer}
+  .btn{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#04121f;font-weight:700;border:none;border-radius:12px;
+    padding:14px 26px;font-size:1.02rem;cursor:pointer;transition:.18s;
+  }
+  .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--txt);font-weight:600}
+  .btn.ghost:hover{border-color:var(--accent)}
+  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px;flex-wrap:wrap}
+  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+  .pill{background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 14px;font-size:.8rem;color:var(--muted)}
+  .pill b{color:var(--accent)}
+  .bar{height:8px;background:var(--card2);border-radius:999px;overflow:hidden;margin-bottom:22px;border:1px solid var(--border)}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--good));width:0;transition:width .35s}
+  .qtopic{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:8px;font-weight:700}
+  .qtext{font-size:1.18rem;color:#fff;margin-bottom:20px;font-weight:600}
+  .answers{display:flex;flex-direction:column;gap:12px}
+  .ans{
+    display:flex;gap:14px;align-items:flex-start;background:var(--card2);
+    border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;
+    transition:.15s;font-size:1rem;
+  }
+  .ans:hover{border-color:var(--accent)}
+  .ans .lt{font-weight:800;color:var(--accent);min-width:22px}
+  .ans.sel{border-color:var(--accent);background:#11324a}
+  .ans.correct{border-color:var(--good);background:rgba(34,197,94,.13)}
+  .ans.correct .lt{color:var(--good)}
+  .ans.wrong{border-color:var(--bad);background:rgba(239,68,68,.13)}
+  .ans.wrong .lt{color:var(--bad)}
+  .ans.locked{cursor:default;pointer-events:none}
+  .feedback{margin-top:16px;padding:13px 16px;border-radius:10px;font-size:.95rem;display:none}
+  .feedback.show{display:block}
+  .feedback.ok{background:rgba(34,197,94,.12);border:1px solid var(--good);color:#bbf7d0}
+  .feedback.no{background:rgba(239,68,68,.12);border:1px solid var(--bad);color:#fecaca}
+  .score-big{font-size:3.4rem;font-weight:800;text-align:center;color:#fff;line-height:1}
+  .score-sub{text-align:center;color:var(--muted);margin:8px 0 4px}
+  .grade{text-align:center;font-size:1.3rem;font-weight:700;margin:10px 0 22px}
+  .review h3{color:#fff;margin:22px 0 12px;font-size:1.1rem}
+  .ritem{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .ritem .rq{font-weight:600;color:#fff;margin-bottom:8px}
+  .ritem .ra{font-size:.92rem;margin:3px 0}
+  .ra.user.bad{color:#fca5a5}
+  .ra.corr{color:#86efac}
+  .ritem .rtopic{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:6px;font-weight:700}
+  .hidden{display:none}
+  .center{text-align:center}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:26px}
+  @media(max-width:560px){header.top h1{font-size:1.3rem}.qtext{font-size:1.05rem}.card{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Quiz PKM II</h1>
+    <p>Połączenia gwintowe i spawane • Sprzęgła • Hamulce • Przekładnie zębate</p>
+  </header>
+
+  <section id="start" class="card">
+    <p class="lead">Wybierz zakres materiału, a następnie rozpocznij quiz. Pytania jednokrotnego wyboru (ABCD). Pytania czysto obliczeniowe zostały pominięte — quiz sprawdza wiedzę teoretyczną.</p>
+    <div class="topics" id="topicList"></div>
+    <div class="row">
+      <div class="opt-toggle">
+        <input type="checkbox" id="optInstant" checked>
+        <label for="optInstant">Pokazuj poprawną odpowiedź od razu</label>
+      </div>
+      <div class="opt-toggle">
+        <input type="checkbox" id="optShuffle" checked>
+        <label for="optShuffle">Losowa kolejność pytań i odpowiedzi</label>
+      </div>
+    </div>
+    <div class="actions">
+      <span class="pill">Dostępnych pytań: <b id="poolCount">0</b></span>
+      <button class="btn" id="startBtn">Rozpocznij quiz &#9654;</button>
+    </div>
+  </section>
+
+  <section id="quiz" class="card hidden">
+    <div class="qhead">
+      <span class="pill">Pytanie <b id="qNum">1</b> / <span id="qTot">0</span></span>
+      <span class="pill">Wynik: <b id="liveScore">0</b></span>
+    </div>
+    <div class="bar"><i id="progBar"></i></div>
+    <div class="qtopic" id="qTopic"></div>
+    <div class="qtext" id="qText"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions">
+      <button class="btn ghost" id="quitBtn">Zakończ</button>
+      <button class="btn" id="nextBtn" disabled>Dalej &#8594;</button>
+    </div>
+  </section>
+
+  <section id="results" class="card hidden">
+    <div class="score-big" id="finalScore">0 / 0</div>
+    <div class="score-sub" id="finalPct">0%</div>
+    <div class="grade" id="finalGrade"></div>
+    <div class="center">
+      <button class="btn" id="restartBtn">Zagraj ponownie &#8635;</button>
+    </div>
+    <div class="review" id="review"></div>
+  </section>
+
+  <footer>Materiał na podstawie wykładów PKM II (delta / PK). Quiz edukacyjny.</footer>
+</div>
+
+<script>
+const TOPICS = {
+  gwint:  {name:"Połączenia gwintowe", ico:"\uD83D\uDD29"},
+  spaw:   {name:"Połączenia spawane",  ico:"\uD83D\uDD25"},
+  sprz:   {name:"Sprzęgła",            ico:"\u2699\uFE0F"},
+  ham:    {name:"Hamulce",             ico:"\uD83D\uDED1"},
+  przek:  {name:"Przekładnie zębate",  ico:"\uD83E\uDDB7"},
+};
+
+const QUESTIONS = [
+{t:"gwint",q:"Co oznacza wielkość p_dop (k_d) w połączeniach gwintowych?",
+ a:["Dopuszczalny nacisk powierzchniowy między zwojami gwintu","Dopuszczalne naprężenie rozciągające rdzenia śruby","Moment dokręcania nakrętki","Współczynnik tarcia w gwincie"],c:0},
+{t:"gwint",q:"Które połączenie gwintowe ma najwyższe dopuszczalne naciski k_d?",
+ a:["Ruchowe (przekładnie)","Półruchowe (rzadko poruszane)","Spoczynkowe (elementy złączne)","Wszystkie mają jednakowe"],c:2},
+{t:"gwint",q:"Jaką wysokość nakrętki m przyjmuje się dla normalnych łączników gwintowych w połączeniach spoczynkowych?",
+ a:["m = 0,8d","m = 0,3d","m = 1,5d","m = 2,5d"],c:0},
+{t:"gwint",q:"Jaką wysokość nakrętki przyjmuje się dla połączeń ruchowych?",
+ a:["m = 0,5d","m = (1,5 ÷ 2,0)d","m = 0,8d","m = 0,2d"],c:1},
+{t:"gwint",q:"Przykładem śruby obciążonej wyłącznie siłą osiową jest:",
+ a:["Śruba podnośnika (napędowa)","Hak dźwigowy","Śruba przenosząca siły poprzeczne","Śruba mocująca koło pasowe"],c:1},
+{t:"gwint",q:"Śruba podnośnikowa (napędowa) jest typowym przykładem śruby obciążonej:",
+ a:["Tylko siłą poprzeczną","Tylko momentem gnącym","Siłą osiową i momentem skręcającym","Wyłącznie wyboczeniem"],c:2},
+{t:"gwint",q:"Długie śruby ściskane należy dodatkowo sprawdzić na:",
+ a:["Wyboczenie (warunek stateczności)","Naciski dopuszczalne zwojów","Szczelność połączenia","Zmęczenie cieplne"],c:0},
+{t:"gwint",q:"Wzór Eulera (σkr = π²E/λ²) stosuje się przy wyboczeniu:",
+ a:["Sprężystym (λ ≥ λgr)","Sprężysto-plastycznym (λ < λgr)","Niezależnie od smukłości","Tylko dla śrub krótkich"],c:0},
+{t:"gwint",q:"Wzór Tetmajera (σkr = σo − bλ) opisuje wyboczenie:",
+ a:["Sprężyste","Sprężysto-plastyczne (λ < λgr)","Wyłącznie statyczne","Zmęczeniowe"],c:1},
+{t:"gwint",q:"O charakterze wyboczenia śruby (sprężyste / niesprężyste) decyduje przede wszystkim:",
+ a:["Materiał nakrętki","Smukłość λ oraz sposób zamocowania","Skok gwintu","Kolor powłoki ochronnej"],c:1},
+{t:"gwint",q:"Optymalnym obciążeniem śruby jest:",
+ a:["Obciążenie momentem gnącym","Obciążenie siłą osiową","Obciążenie siłą poprzeczną","Obciążenie cieplne"],c:1},
+{t:"gwint",q:"Dodatkowe naprężenia gnące w śrubie (od nieprostopadłości powierzchni oporowej):",
+ a:["Zwiększają nośność zmęczeniową","Znacznie obniżają nośność zmęczeniową","Nie mają znaczenia","Występują tylko przy ściskaniu"],c:1},
+{t:"gwint",q:"Aby zmniejszyć ugięcie i naprężenia gnące śruby, należy dążyć do tego, by śruba była:",
+ a:["Krótka i sztywna (mała smukłość)","Bardziej elastyczna/smukła (duże l/dr)","Wykonana z żeliwa","O dużej średnicy rdzenia"],c:1},
+{t:"gwint",q:"Jakie trzy stany rozróżnia się przy analizie śruby napiętej wstępnie?",
+ a:["Stan zimny, ciepły i gorący","Stan początkowy, montażowy i roboczy","Stan I, II i III biegu","Stan jałowy, częściowy i pełny"],c:1},
+{t:"gwint",q:"Współczynnik χ w połączeniu śrubowym napiętym wstępnie to:",
+ a:["Współczynnik obciążenia złącza śrubowego","Współczynnik tarcia gwintu","Smukłość graniczna","Sprawność połączenia"],c:0},
+{t:"gwint",q:"Zacisk resztkowy kołnierzy Qz dobiera się tak, aby:",
+ a:["Zminimalizować masę śruby","Zapewnić szczelność połączenia","Zwiększyć skok gwintu","Wyeliminować tarcie"],c:1},
+{t:"gwint",q:"Liczba czynnych zwojów gwintu nakrętki i zależy głównie od:",
+ a:["Wysokości nakrętki, skoku i krotności gwintu","Koloru materiału","Momentu gnącego","Prędkości obrotowej"],c:0},
+{t:"gwint",q:"Współczynnik swobodnej długości μw przy wyboczeniu śruby zależy od:",
+ a:["Materiału nakrętki","Sposobu zamocowania (utwierdzenia) śruby","Skoku gwintu","Temperatury otoczenia"],c:1},
+{t:"gwint",q:"Warunek wytrzymałościowy śruby obciążonej siłą osiową dotyczy przede wszystkim:",
+ a:["Naprężeń ścinających","Naprężeń rozciągających w rdzeniu","Naprężeń docisku zwojów","Momentu skręcającego"],c:1},
+
+{t:"spaw",q:"Połączenie spawane zalicza się do połączeń:",
+ a:["Rozłącznych","Nierozłącznych","Spoczynkowych ruchomych","Ciernych"],c:1},
+{t:"spaw",q:"Spoina powstaje w wyniku:",
+ a:["Skręcenia śrub","Stopienia i krzepnięcia stopiwa oraz materiałów rodzimych","Zgrzewania na zimno","Klejenia powierzchni"],c:1},
+{t:"spaw",q:"Spoinami czołowymi łączy się elementy:",
+ a:["Nasunięte na siebie przez otwory","Dosunięte do siebie czołami","Nachylone, wypełniając kąt między nimi","Tylko rury"],c:1},
+{t:"spaw",q:"Kształt rowka spoiny czołowej przypomina wielkie litery:",
+ a:["A, B, C, D","I, V, Y, X, U, J, K","O, P, Q, R","L, M, N, T"],c:1},
+{t:"spaw",q:"Spoina pachwinowa ma w przekroju kształt:",
+ a:["Trójkąta równoramiennego","Koła","Prostokąta","Trapezu"],c:0},
+{t:"spaw",q:"Spoinami pachwinowymi łączy się elementy:",
+ a:["Dosunięte czołami","Nachylone względem siebie, wypełniając spoiwem kąt","Tylko o jednakowej grubości","Wyłącznie blachy cienkie"],c:1},
+{t:"spaw",q:"Spoinami otworowymi łączy się elementy:",
+ a:["Dosunięte czołami","Nasunięte na siebie — w jednym wykonuje się otwory wypełniane spoiną","Nachylone pod kątem prostym","Rozsunięte i opasane cięgnem"],c:1},
+{t:"spaw",q:"We wzorze na naprężenie dopuszczalne w spoinie k' = z₀·z·k_r, wielkość z₀ oznacza:",
+ a:["Współczynnik jakości spoiny","Współczynnik wytrzymałości statycznej","Naprężenie dopuszczalne materiału rodzimego","Liczbę spoin"],c:1},
+{t:"spaw",q:"Współczynnik jakości spoiny z (0,5 ÷ 1,0) zależy od:",
+ a:["Konstrukcji i staranności wykonania spoiny","Temperatury otoczenia","Koloru materiału","Prędkości spawania wyłącznie"],c:0},
+{t:"spaw",q:"Skrót SWC w połączeniu spawanym oznacza:",
+ a:["Strefę wpływu ciepła","Standardowy współczynnik ciągliwości","Spoinę współczynnikową czołową","Stan wytrzymałości chwilowej"],c:0},
+{t:"spaw",q:"Wg Eurokodu 3 efektywną grubość spoiny pachwinowej a przyjmuje się jako:",
+ a:["Pełną szerokość elementu","Wysokość największego trójkąta wpisanego w przekrój spoiny","Grubość cieńszego elementu","Długość lica spoiny"],c:1},
+{t:"spaw",q:"Minimum technologiczne grubości spoiny pachwinowej wg Eurokodu 3 wynosi:",
+ a:["a ≥ 1 mm","a ≥ 3 mm","a ≥ 10 mm","a ≥ 0,5 mm"],c:1},
+{t:"spaw",q:"Sprężysto-plastyczny stan odkształceń w spoinie:",
+ a:["Jest dopuszczalny przy obciążeniach statycznych, ale niepożądany przy zmęczeniowych","Jest zawsze niedopuszczalny","Występuje tylko w spoinach otworowych","Zwiększa trwałość zmęczeniową"],c:0},
+{t:"spaw",q:"Zasadniczym elementem złącza spawanego jest:",
+ a:["Nit","Spoina","Nakrętka","Kołek"],c:1},
+
+{t:"sprz",q:"Sprzęgło to zespół służący do:",
+ a:["Trwałej zmiany kierunku momentu obrotowego","Łączenia wałów i przekazywania momentu obrotowego bez trwałej zmiany jego wartości i kierunku","Hamowania członu ruchomego","Zmiany prędkości obrotowej i momentu"],c:1},
+{t:"sprz",q:"Z jakich podstawowych członów składa się sprzęgło?",
+ a:["Czynnego (napędzającego), biernego (napędzanego) i łącznika","Tłoka, korbowodu i wału","Bębna, szczęki i okładziny","Zębnika, koła i wałka pośredniego"],c:0},
+{t:"sprz",q:"Który z poniższych NIE jest rodzajem łącznika w sprzęgle?",
+ a:["Ciało stałe (mechaniczny)","Siły pola elektromagnetycznego","Ciecz (hydrodynamiczny)","Strumień świetlny"],c:3},
+{t:"sprz",q:"Przemieszczenia względne wałów łączonych sprzęgłem dzieli się na:",
+ a:["Osiowe, promieniowe i kątowe","Pionowe, poziome i skośne","Statyczne, dynamiczne i cieplne","Sprężyste i plastyczne"],c:0},
+{t:"sprz",q:"Współczynnik przeciążenia K wiąże moment maksymalny z nominalnym wzorem:",
+ a:["Mmax = K + M","Mmax = K · M","Mmax = M / K","Mmax = K²·M"],c:1},
+{t:"sprz",q:"Do sprzęgieł nierozłącznych mechanicznych zalicza się:",
+ a:["Sztywne, samonastawne i podatne","Cierne i elektromagnetyczne","Odśrodkowe i bezpieczeństwa","Hydrodynamiczne i synchroniczne"],c:0},
+{t:"sprz",q:"Sprzęgła nierozłączne to takie, w których:",
+ a:["Można je rozłączyć w dowolnej chwili pracy","Człon czynny i bierny połączone są trwale — rozłączane tylko przy demontażu","Moment przenoszony jest przez tarcie","Następuje samoczynne rozłączenie po przeciążeniu"],c:1},
+{t:"sprz",q:"Sprzęgła sztywne wymagają od łączonych wałów:",
+ a:["Dużej niewspółosiowości","Zachowania współosiowości","Zmiennego kąta przekoszenia","Dużych drgań skrętnych"],c:1},
+{t:"sprz",q:"Sprzęgła samonastawne umożliwiają łączenie wałów:",
+ a:["Przy dużych zmianach położenia kątowego","W przypadku niewielkich zmian względnego położenia osi","Tylko idealnie współosiowych","Wyłącznie w napędach hydraulicznych"],c:1},
+{t:"sprz",q:"Sprzęgła podatne stosuje się głównie, gdy w układzie występują:",
+ a:["Duże drgania (tłumienie drgań skrętnych)","Wyłącznie obciążenia statyczne","Bardzo małe prędkości","Brak momentu obrotowego"],c:0},
+{t:"sprz",q:"Zamierzone zmiany położenia kątowego wałów realizuje się przy pomocy sprzęgieł:",
+ a:["Sztywnych","Przegubowych (Cardana)","Ciernych wielopłytkowych","Odśrodkowych"],c:1},
+{t:"sprz",q:"Pojedyncze sprzęgło przegubowe (Cardana) przenosi ruch:",
+ a:["Zawsze jednostajnie","Niejednostajnie (zmienna prędkość kątowa wału biernego)","Bez przenoszenia momentu","Tylko przy współosiowości"],c:1},
+{t:"sprz",q:"Zastosowanie podwójnego sprzęgła przegubowego z wałkiem pośrednim pozwala na:",
+ a:["Synchronizację prędkości kątowych — jednostajną pracę maszyny","Zwiększenie niejednostajności biegu","Eliminację momentu obrotowego","Zamianę ruchu obrotowego na postępowy"],c:0},
+{t:"sprz",q:"W sprzęgłach ciernych moment obrotowy przenoszony jest przez:",
+ a:["Tarcie (warunek M_T ≥ K·M)","Zazębienie kół zębatych","Pole elektromagnetyczne","Strumień cieczy"],c:0},
+{t:"sprz",q:"Do sprzęgieł samoczynnych zalicza się sprzęgła:",
+ a:["Bezpieczeństwa, jednokierunkowe i odśrodkowe","Sztywne i podatne","Synchroniczne i kształtowe","Przegubowe i teleskopowe"],c:0},
+{t:"sprz",q:"Sprzęgło bezpieczeństwa (np. kulkowe, wielopłytkowe) działa tak, że:",
+ a:["Trwale blokuje wały","Po przeciążeniu następuje poślizg i spadek przenoszonego momentu","Zwiększa moment przy przeciążeniu","Zmienia kierunek obrotów"],c:1},
+{t:"sprz",q:"Niemiecka norma DIN 740-2 dotyczy przede wszystkim:",
+ a:["Wymiarowania i doboru sprzęgieł podatnych","Obliczeń spoin pachwinowych","Doboru łożysk tocznych","Geometrii kół zębatych"],c:0},
+{t:"sprz",q:"O wyborze rodzaju sprzęgła (np. cierne vs synchroniczne) decyduje głównie:",
+ a:["Kolor obudowy","Różnica prędkości łączonych wałów","Masa nakrętki","Liczba zębów koła"],c:1},
+{t:"sprz",q:"Nominalny moment obrotowy przenoszony przez sprzęgło można wyznaczyć ze wzoru:",
+ a:["M = N/ω (gdzie N – moc, ω – prędkość kątowa)","M = ω/N","M = N·ω²","M = z·m"],c:0},
+
+{t:"ham",q:"Hamulce są elementami układu napędowego służącymi do:",
+ a:["Zatrzymania, regulacji prędkości lub utrzymania układu w stałym położeniu","Zwiększania momentu obrotowego","Zmiany przełożenia geometrycznego","Smarowania łożysk"],c:0},
+{t:"ham",q:"Zadanie hamowania realizowane jest przez:",
+ a:["Zazębienie kół","Sprzężenie cierne członu poruszającego się z członem nieruchomym","Pole magnetyczne wału","Przepływ cieczy chłodzącej"],c:1},
+{t:"ham",q:"Podstawowa różnica między hamulcem a sprzęgłem polega na tym, że w hamulcu:",
+ a:["Oba człony się obracają","Jeden z członów połączony jest z elementem nieruchomym","Nie występuje tarcie","Moment jest zawsze większy"],c:1},
+{t:"ham",q:"Który podział hamulców stosowanych w układach napędowych jest poprawny?",
+ a:["Klockowe, szczękowe, tarczowe, taśmowe","Sztywne, podatne, cierne","Czołowe, śrubowe, ślimakowe","Osiowe, promieniowe, kątowe"],c:0},
+{t:"ham",q:"Hamulce szczękowe (bębnowe) stosuje się najczęściej w:",
+ a:["Pojazdach","Zegarach","Pompach wirowych","Liniach przesyłowych energii"],c:0},
+{t:"ham",q:"Hamulce klockowe (jedno- i dwuklockowe) stosuje się głównie w:",
+ a:["Maszynach ogólnego przeznaczenia, dźwignicach, kolejkach górskich","Wyłącznie w zegarkach","Tylko w przekładniach ślimakowych","Tylko w sprzęgłach hydraulicznych"],c:0},
+{t:"ham",q:"W hamulcu taśmowym wartość siły naciągu taśmy opisuje (wzór Eulera):",
+ a:["S₁ = S₂ · e^(μα)","S₁ = S₂ + μα","S₁ = S₂ / μ","S₁ = μ·N·R"],c:0},
+{t:"ham",q:"Rolę hamulca może spełniać większość sprzęgieł:",
+ a:["Nierozłącznych","Rozłącznych","Sztywnych","Samonastawnych"],c:1},
+{t:"ham",q:"Hamulec taśmowy różnicowy przy niewłaściwym doborze parametrów może działać jak:",
+ a:["Multiplikator","Zapadka","Sprzęgło synchroniczne","Wariator"],c:1},
+{t:"ham",q:"Hamulce taśmowe stosuje się przede wszystkim jako:",
+ a:["Hamulce pomocnicze i postojowe","Główne hamulce robocze obrabiarek","Sprzęgła rozruchowe","Elementy uszczelniające"],c:0},
+
+{t:"przek",q:"Przekładnia to mechanizm służący do przenoszenia ruchu obrotowego z jednoczesną zmianą:",
+ a:["Prędkości kątowej ω i momentu obrotowego M","Wyłącznie temperatury","Tylko kierunku siły osiowej","Jedynie skoku gwintu"],c:0},
+{t:"przek",q:"Ogólna sprawność klasycznego układu napędowego (silnik–przekładnia–maszyna) wynosi:",
+ a:["η = η₁ + η₂ + η₃","η = η₁ · η₂ · η₃","η = η₁ / η₂","η = η₁ − η₂ − η₃"],c:1},
+{t:"przek",q:"Przełożenie kinematyczne i definiuje się jako:",
+ a:["Stosunek prędkości kątowych: i = ω₁/ω₂ = n₁/n₂","Stosunek średnic: d₂/d₁","Iloczyn momentów","Sumę liczby zębów"],c:0},
+{t:"przek",q:"Przełożenie geometryczne u definiuje się jako:",
+ a:["u = ω₁/ω₂","u = d₂/d₁ = z₂/z₁","u = M₂/M₁","u = π·m"],c:1},
+{t:"przek",q:"Reduktor to przekładnia, w której:",
+ a:["i > 1 — następuje redukcja obrotów i wzrost momentu, zębnik jest kołem czynnym","i < 1 — następuje wzrost obrotów","Nie zmienia się ani prędkość, ani moment","Koło duże jest zawsze czynne"],c:0},
+{t:"przek",q:"Multiplikator to przekładnia, w której:",
+ a:["i > 1 — redukcja obrotów","i < 1 — przyspieszenie (zwiększenie liczby obrotów), koło jest czynne","Moment rośnie nieskończenie","Zębnik jest zawsze bierny"],c:1},
+{t:"przek",q:"Zgodnie z klasyfikacją, przekładnie mechaniczne dzielą się na:",
+ a:["Zębate, cięgnowe i cierne","Spoczynkowe, ruchowe i półruchowe","Sztywne, podatne i przegubowe","Klockowe, taśmowe i tarczowe"],c:0},
+{t:"przek",q:"Do przekładni cięgnowych zalicza się przekładnie:",
+ a:["Czołowe i śrubowe","Pasowe, linowe i łańcuchowe","Walcowe i stożkowe","Planetarne i ślimakowe"],c:1},
+{t:"przek",q:"Zębnikiem nazywamy:",
+ a:["Koło o mniejszej liczbie zębów (zwykle napędzające)","Koło o większej liczbie zębów","Wałek pośredni","Obudowę przekładni"],c:0},
+{t:"przek",q:"Ze względu na kształt linii zęba przekładnie zębate dzielimy m.in. na zęby:",
+ a:["Proste, skośne, strzałkowe i łukowe","Czerwone, zielone i niebieskie","Statyczne i dynamiczne","Osiowe i promieniowe"],c:0},
+{t:"przek",q:"Wśród zalet przekładni zębatych wymienia się:",
+ a:["Dużą sprawność (0,98–0,99) i zwartą budowę","Bezgłośną pracę zębów prostych","Niski koszt wykonania kół","Brak konieczności smarowania"],c:0},
+{t:"przek",q:"Wadą przekładni zębatych o zębach prostych jest:",
+ a:["Mała sprawność","Głośna praca","Niemożność przenoszenia dużych mocy","Brak zwartości budowy"],c:1},
+{t:"przek",q:"Główną zaletą zarysu ewolwentowego zęba jest:",
+ a:["Mała wrażliwość na odchyłki odległości osi (stałe przełożenie kinematyczne)","Brak nacisków Hertza","Zerowy koszt wykonania","Eliminacja konieczności korekcji"],c:0},
+{t:"przek",q:"Wadą zazębienia zewnętrznego o zarysie ewolwentowym jest:",
+ a:["Współpraca powierzchni wypukłych — duże naciski stykowe Hertza","Niemożność doboru kół w pary","Brak ciągłości zazębienia","Zbyt cicha praca"],c:0},
+{t:"przek",q:"Podstawowe prawo zazębienia mówi, że dla stałego przełożenia wspólna normalna w punkcie styku zębów:",
+ a:["Musi dzielić odcinek między osiami O₁O₂ w stałym stosunku równym przełożeniu","Musi być prostopadła do osi","Powinna przechodzić przez wierzchołek zęba","Powinna być styczna do okręgu wierzchołkowego"],c:0},
+{t:"przek",q:"Graniczna liczba zębów dla koła walcowego (α = 20°, h*a = 1) wynosi teoretycznie:",
+ a:["zg = 17 (praktycznie 14)","zg = 5","zg = 50","zg = 100"],c:0},
+{t:"przek",q:"Podcięcie podstawy zęba (podcięcie stopy) następuje, gdy liczba zębów:",
+ a:["z < zg (mniejsza od granicznej)","z = zg","z > zg","z jest parzysta"],c:0},
+{t:"przek",q:"Korekcję zarysu (przesunięcie x) stosuje się m.in. w celu:",
+ a:["Uniknięcia podcięcia zęba przy małej liczbie zębów","Zwiększenia masy koła","Zmiany koloru zęba","Eliminacji smarowania"],c:0},
+{t:"przek",q:"Korekcja zerowa (P-0) charakteryzuje się tym, że:",
+ a:["x₁ = −x₂ i nie zmienia się odległość osi","x₁ = x₂ i odległość osi rośnie","Stosuje się ją tylko w przekładniach ślimakowych","Powoduje zawsze podcięcie zęba"],c:0},
+{t:"przek",q:"W przekładni stożkowej hipoidalnej, w porównaniu ze stożkową czołową:",
+ a:["Oś zębnika jest przesunięta względem osi koła — większa wytrzymałość i lepsza płynność","Sprawność wynosi 100%","Nie ma zazębienia","Koła muszą leżeć na wspólnej osi"],c:0},
+{t:"przek",q:"Koło zębate współpracujące z zębatką prostą (listwą) służy do:",
+ a:["Zamiany ruchu obrotowego na postępowy i odwrotnie","Zwiększenia momentu skręcającego nieskończenie","Hamowania bębna","Tłumienia drgań skrętnych"],c:0},
+{t:"przek",q:"Średnicę podziałową koła zębatego określa zależność:",
+ a:["d = z · m (gdzie m – moduł, z – liczba zębów)","d = m / z","d = z + m","d = π / m"],c:0},
+];
+
+const $=id=>document.getElementById(id);
+const startEl=$('start'),quizEl=$('quiz'),resEl=$('results');
+let selected=new Set(Object.keys(TOPICS));
+let game=null;
+
+function buildTopics(){
+  const list=$('topicList'); list.innerHTML='';
+  Object.entries(TOPICS).forEach(([k,v])=>{
+    const cnt=QUESTIONS.filter(q=>q.t===k).length;
+    const d=document.createElement('div');
+    d.className='topic sel'; d.dataset.k=k;
+    d.innerHTML='<span class="ico">'+v.ico+'</span>'+
+      '<span class="meta"><b>'+v.name+'</b><span>'+cnt+' pytań</span></span>'+
+      '<span class="chk">&#10003;</span>';
+    d.onclick=()=>{
+      if(selected.has(k)){selected.delete(k);d.classList.remove('sel');}
+      else{selected.add(k);d.classList.add('sel');}
+      updatePool();
+    };
+    list.appendChild(d);
+  });
+  updatePool();
+}
+function updatePool(){
+  const n=QUESTIONS.filter(q=>selected.has(q.t)).length;
+  $('poolCount').textContent=n;
+  $('startBtn').disabled=n===0;
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startQuiz(){
+  const instant=$('optInstant').checked;
+  const doShuffle=$('optShuffle').checked;
+  let pool=QUESTIONS.filter(q=>selected.has(q.t)).map(q=>{
+    let opts=q.a.map((text,i)=>({text,correct:i===q.c}));
+    if(doShuffle) shuffle(opts);
+    return {t:q.t,q:q.q,opts};
+  });
+  if(doShuffle) shuffle(pool);
+  game={pool,idx:0,score:0,answers:[],instant};
+  startEl.classList.add('hidden');resEl.classList.add('hidden');
+  quizEl.classList.remove('hidden');
+  $('qTot').textContent=pool.length;
+  renderQ();
+}
+
+function renderQ(){
+  const g=game,item=g.pool[g.idx];
+  $('qNum').textContent=g.idx+1;
+  $('liveScore').textContent=g.score;
+  $('progBar').style.width=((g.idx)/g.pool.length*100)+'%';
+  $('qTopic').textContent=TOPICS[item.t].name;
+  $('qText').textContent=item.q;
+  const fb=$('feedback');fb.className='feedback';fb.textContent='';
+  const wrap=$('answers');wrap.innerHTML='';
+  const letters=['A','B','C','D'];
+  item.opts.forEach((o,i)=>{
+    const el=document.createElement('div');
+    el.className='ans';
+    el.innerHTML='<span class="lt">'+letters[i]+'</span><span>'+o.text+'</span>';
+    el.onclick=()=>choose(i,el);
+    wrap.appendChild(el);
+  });
+  $('nextBtn').disabled=true;
+  $('nextBtn').innerHTML=(g.idx===g.pool.length-1)?'Zakończ &#10003;':'Dalej &#8594;';
+}
+
+function choose(i,el){
+  const g=game,item=g.pool[g.idx];
+  if(item._answered) return;
+  item._answered=true; item._pick=i;
+  const correctIdx=item.opts.findIndex(o=>o.correct);
+  const isCorrect=item.opts[i].correct;
+  if(isCorrect) g.score++;
+  g.answers.push({t:item.t,q:item.q,pickText:item.opts[i].text,corrText:item.opts[correctIdx].text,ok:isCorrect});
+  const nodes=$('answers').children;
+  for(const n of nodes) n.classList.add('locked');
+  if(g.instant){
+    nodes[i].classList.add(isCorrect?'correct':'wrong');
+    nodes[correctIdx].classList.add('correct');
+    const fb=$('feedback');
+    if(isCorrect){fb.className='feedback show ok';fb.textContent='\u2714 Poprawna odpowiedź!';}
+    else{fb.className='feedback show no';fb.textContent='\u2717 Niepoprawnie. Poprawna odpowiedź: '+item.opts[correctIdx].text;}
+  }else{
+    nodes[i].classList.add('sel');
+  }
+  $('liveScore').textContent=g.score;
+  $('nextBtn').disabled=false;
+}
+
+function nextQ(){
+  const g=game;
+  if(g.idx===g.pool.length-1){return showResults();}
+  g.idx++; renderQ();
+}
+
+function showResults(){
+  const g=game;
+  quizEl.classList.add('hidden');resEl.classList.remove('hidden');
+  const tot=g.pool.length,sc=g.score,pct=Math.round(sc/tot*100);
+  $('finalScore').textContent=sc+' / '+tot;
+  $('finalPct').textContent=pct+'% poprawnych odpowiedzi';
+  let grade,color;
+  if(pct>=90){grade='Doskonale! \uD83C\uDFC6';color='#22c55e';}
+  else if(pct>=75){grade='Bardzo dobrze \uD83D\uDC4D';color='#4ade80';}
+  else if(pct>=50){grade='Nieźle, ale warto powtórzyć \uD83D\uDCD8';color='#fbbf24';}
+  else{grade='Wymaga powtórki materiału \uD83D\uDCDA';color='#ef4444';}
+  const gEl=$('finalGrade');gEl.textContent=grade;gEl.style.color=color;
+  const rev=$('review');
+  const wrong=g.answers.filter(a=>!a.ok);
+  if(wrong.length===0){
+    rev.innerHTML='<h3>Wszystkie odpowiedzi poprawne — gratulacje! \uD83C\uDF89</h3>';
+  }else{
+    let html='<h3>Pytania do powtórki ('+wrong.length+'):</h3>';
+    wrong.forEach(a=>{
+      html+='<div class="ritem">'+
+        '<div class="rtopic">'+TOPICS[a.t].name+'</div>'+
+        '<div class="rq">'+a.q+'</div>'+
+        '<div class="ra user bad">Twoja odpowiedź: '+a.pickText+'</div>'+
+        '<div class="ra corr">Poprawnie: '+a.corrText+'</div>'+
+      '</div>';
+    });
+    rev.innerHTML=html;
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+$('startBtn').onclick=startQuiz;
+$('nextBtn').onclick=nextQ;
+$('quitBtn').onclick=showResults;
+$('restartBtn').onclick=()=>{resEl.classList.add('hidden');startEl.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});};
+buildTopics();
+</script>
+</body>
+</html>
