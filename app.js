@@ -87,7 +87,7 @@
     let pool = QUESTIONS.filter(q=>state.selected.has(q.t)).map(q=>{
       let opts = q.a.map((text,i)=>({text, correct:i===q.c}));
       if(state.shuffle) shuffleArr(opts);
-      return {t:q.t, q:q.q, e:q.e, opts};
+      return {t:q.t, q:q.q, e:q.e, h:q.h, opts};
     });
     if(state.shuffle) shuffleArr(pool);
     const n = state.count===0 ? pool.length : Math.min(state.count, pool.length);
