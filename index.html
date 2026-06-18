@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz PKM II — Połączenia, Sprzęgła, Hamulce, Przekładnie</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="badge-top">Podstawy Konstrukcji Maszyn II</div>
+    <h1>Interaktywny Quiz PKM II</h1>
+    <p>Połączenia gwintowe i spawane • Sprzęgła • Hamulce • Przekładnie zębate</p>
+  </header>
+
+  <!-- ===== EKRAN STARTOWY ===== -->
+  <section id="setup" class="card">
+    <p class="lead">Skonfiguruj quiz i sprawdź swoją wiedzę. Pytania jednokrotnego wyboru (ABCD) z wyjaśnieniami. Wszystkie odpowiedzi mają zbliżoną długość, a ich kolejność jest losowana — nie da się zgadywać „po najdłuższej”. Pytania czysto obliczeniowe pominięto.</p>
+
+    <div class="section-label">Zakres materiału</div>
+    <div class="topics" id="topicList"></div>
+
+    <div class="opts-grid">
+      <div class="field">
+        <div class="fl">Liczba pytań</div>
+        <div class="seg" id="countSeg"></div>
+      </div>
+      <div class="field">
+        <div class="fl">Opcje</div>
+        <div class="toggles">
+          <label class="tg"><input type="checkbox" id="tInstant"> Pokazuj poprawną odpowiedź i wyjaśnienie od razu</label>
+          <label class="tg"><input type="checkbox" id="tShuffle"> Losowa kolejność pytań i odpowiedzi</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <span class="bestbox" id="bestBox"></span>
+      <span class="pill">Pula: <b id="poolCount">0</b> • do rozwiązania: <b id="effCount">0</b></span>
+      <button class="btn" id="startBtn">Rozpocznij quiz &#9654;</button>
+    </div>
+  </section>
+
+  <!-- ===== EKRAN QUIZU ===== -->
+  <section id="quiz" class="card hidden">
+    <div class="qhead">
+      <div class="pills">
+        <span class="pill">Pytanie <b id="qNum">1</b> / <span id="qTot">0</span></span>
+        <span class="pill">Wynik: <b id="liveScore">0</b></span>
+      </div>
+      <div class="pills">
+        <span class="pill time">&#9201; <b id="timer">00:00</b></span>
+      </div>
+    </div>
+    <div class="bar"><i id="progBar"></i></div>
+    <div class="qtopic" id="qTopic"></div>
+    <div class="qtext" id="qText"></div>
+    <div class="answers" id="answers"></div>
+    <div class="hintwrap"><button class="btn ghost sm" id="hintBtn" type="button">&#128161; Podpowiedź</button></div>
+    <div class="hintbox" id="hintBox"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="kbd-hint">Skróty: <kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>D</kbd> lub <kbd>1</kbd>–<kbd>4</kbd> = odpowiedź &nbsp;•&nbsp; <kbd>H</kbd> = podpowiedź &nbsp;•&nbsp; <kbd>Enter</kbd> = dalej</div>
+    <div class="actions">
+      <button class="btn ghost" id="quitBtn">Zakończ</button>
+      <button class="btn" id="nextBtn" disabled>Dalej &#8594;</button>
+    </div>
+  </section>
+
+  <!-- ===== EKRAN WYNIKÓW ===== -->
+  <section id="results" class="card hidden">
+    <div class="result-hero">
+      <div class="ring" id="ring"><div class="inner"><div class="pct" id="ringPct">0%</div><div class="pl">wynik</div></div></div>
+      <div class="result-meta">
+        <div class="score-big" id="finalScore">0 / 0 pkt</div>
+        <div class="grade" id="finalGrade"></div>
+        <div class="subline" id="finalTime">Czas: 00:00</div>
+        <span class="newbest" id="newBest">&#9733; Nowy najlepszy wynik!</span>
+      </div>
+    </div>
+
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="actions">
+      <button class="btn ghost" id="setupBtn">&#8592; Zmień ustawienia</button>
+      <button class="btn" id="againBtn">Zagraj ponownie &#8635;</button>
+    </div>
+
+    <div class="review" id="review"></div>
+  </section>
+
+  <footer>Materiał na podstawie wykładów PKM II (delta / Politechnika Krakowska). Quiz edukacyjny.</footer>
+</div>
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
